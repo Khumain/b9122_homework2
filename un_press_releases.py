@@ -4,7 +4,10 @@ from bs4 import BeautifulSoup
 
 def check_un_link(url):
     # Checks if a link is a press release and contains the word "crisis"
-    response = urllib.request.urlopen(url)
+    try:
+        response = urllib.request.urlopen(url)
+    except:
+        return None
     soup = BeautifulSoup(response, features="lxml")
     press_release_link = soup.find('a', href=True, hreflang='en', string="Press Release")
     if press_release_link:

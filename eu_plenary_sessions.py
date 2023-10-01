@@ -4,7 +4,10 @@ from bs4 import BeautifulSoup
 
 def check_eu_link(url):
     # Checks if a link is a plenary session and contains the word "crisis"
-    response = urllib.request.urlopen(url)
+    try:
+        response = urllib.request.urlopen(url)
+    except:
+        return None
     soup = BeautifulSoup(response, features="lxml")
     plenary_session = soup.find("span", "ep_name", string="Plenary session")
     if plenary_session:

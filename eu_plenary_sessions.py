@@ -25,7 +25,6 @@ def check_eu_link(url):
                 content.extend(p_texts)
             content = " ".join(content)
             if "crisis" in title or "crisis" in content:
-                print(url)
                 return title, content
     return None
 

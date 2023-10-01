@@ -66,8 +66,6 @@ def get_eu_plenary_sessions():
                     plenary_sessions[res[0]] = res[1]
     return plenary_sessions
 
-get_eu_plenary_sessions()
-
 
 if __name__ == "__main__":
     result = get_eu_plenary_sessions()

@@ -2,6 +2,7 @@ import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
 
+
 def check_eu_link(url):
     # Checks if a link is a plenary session and contains the word "crisis"
     try:
@@ -28,6 +29,12 @@ def check_eu_link(url):
                 return title, content
     return None
 
+
+def generate_txt(title, content, num):
+    with open(f"2_{num}.txt", "w") as f:
+        f.write(title + "\n" + content)
+
+
 def get_eu_plenary_sessions():
     # Goes through 3 layers of links from the seed url to collect press releases
     seed_url = "https://www.europarl.europa.eu/news/en/press-room"
@@ -35,34 +42,42 @@ def get_eu_plenary_sessions():
 
     response = urllib.request.urlopen(seed_url)
     soup = BeautifulSoup(response, features="lxml")
-    home_page_links = set([link['href'] for link in soup.find_all('a', href=True) if link['href'].startswith(seed_url)])
+    home_page_links = set([link['href'] for link in soup.find_all(
+        'a', href=True) if link['href'].startswith(seed_url)])
     for home_link in home_page_links:
         page_url = urllib.parse.urljoin(seed_url, home_link)
         res = check_eu_link(page_url)
         if res and res[0] not in plenary_sessions.keys():
             plenary_sessions[res[0]] = res[1]
-        if len(plenary_sessions) >= 10:
+            generate_txt(res[0], res[1], len(plenary_sessions))
+        if len(plenary_sessions) == 10:
             return plenary_sessions
-        
+
         response = urllib.request.urlopen(page_url)
         soup = BeautifulSoup(response, features="lxml")
-        page_links = set([link['href'] for link in soup.find_all('a', href=True) if link['href'].startswith(seed_url)])
+        page_links = set([link['href'] for link in soup.find_all(
+            'a', href=True) if link['href'].startswith(seed_url)])
         for page_link in page_links:
             subpage_url = urllib.parse.urljoin(seed_url, page_link)
             res = check_eu_link(subpage_url)
             if res and res[0] not in plenary_sessions.keys():
                 plenary_sessions[res[0]] = res[1]
-            if len(plenary_sessions) >= 10:
+                generate_txt(res[0], res[1], len(plenary_sessions))
+            if len(plenary_sessions) == 10:
                 return plenary_sessions
-            
+
             response = urllib.request.urlopen(subpage_url)
             soup = BeautifulSoup(response, features="lxml")
-            subpage_links = set([link['href'] for link in soup.find_all('a', href=True) if link['href'].startswith(seed_url)])
+            subpage_links = set([link['href'] for link in soup.find_all(
+                'a', href=True) if link['href'].startswith(seed_url)])
             for subpage_link in subpage_links:
                 subsubpage_url = urllib.parse.urljoin(seed_url, subpage_link)
                 res = check_eu_link(subsubpage_url)
                 if res and res[0] not in plenary_sessions.keys():
                     plenary_sessions[res[0]] = res[1]
+                    generate_txt(res[0], res[1], len(plenary_sessions))
+                if len(plenary_sessions) == 10:
+                    return plenary_sessions
     return plenary_sessions
 
 
